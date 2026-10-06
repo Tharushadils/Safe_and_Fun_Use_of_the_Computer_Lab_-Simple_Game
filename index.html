@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🛡️ Computer Lab Safety Adventure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div id="game-app">
+    <!-- Top Global Header / HUD -->
+    <header id="game-hud" class="hud hidden">
+      <div class="hud-left">
+        <button id="btn-home" class="hud-btn" title="Main Menu" aria-label="Go to Main Menu">🏠 <span class="btn-text">Menu</span></button>
+        <div class="hud-badge level-badge" id="hud-level-badge">
+          <span class="hud-icon">🏆</span>
+          <div class="hud-info">
+            <span class="hud-label">LEVEL</span>
+            <span class="hud-val" id="hud-level-num">1</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <div class="hud-badge progress-badge">
+          <div class="progress-bar-wrap">
+            <div id="hud-progress-fill" class="progress-bar-fill"></div>
+          </div>
+          <span id="hud-progress-text" class="hud-progress-text">1 / 5</span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="hud-badge score-badge">
+          <span class="hud-icon">⭐</span>
+          <div class="hud-info">
+            <span class="hud-label">SCORE</span>
+            <span class="hud-val" id="hud-score-val">0</span>
+          </div>
+        </div>
+
+        <div class="hud-badge lives-badge">
+          <span class="hud-icon">❤️</span>
+          <div class="hud-hearts" id="hud-hearts-container">
+            <span class="heart active">❤️</span>
+            <span class="heart active">❤️</span>
+            <span class="heart active">❤️</span>
+          </div>
+        </div>
+
+        <div class="hud-badge timer-badge" id="hud-timer-badge">
+          <span class="hud-icon">⏱️</span>
+          <div class="hud-info">
+            <span class="hud-label">TIME</span>
+            <span class="hud-val" id="hud-timer-val">60s</span>
+          </div>
+        </div>
+
+        <button id="btn-sound-toggle" class="hud-btn" title="Toggle Sound" aria-label="Toggle Sound">
+          <span id="sound-icon">🔊</span>
+        </button>
+      </div>
+    </header>
+
+
+
+    <!-- MAIN VIEW CONTAINER (Screens change here) -->
+    <main id="screen-container">
+
+      <!-- SCREEN 1: MAIN MENU -->
+      <section id="screen-main-menu" class="screen active">
+        <div class="menu-hero">
+          <div class="hero-badge-art">
+            <div class="badge-glow"></div>
+            <div class="shield-logo">
+              <span class="shield-icon">🛡️</span>
+              <span class="laptop-icon">💻</span>
+              <span class="sparkle s1">✨</span>
+              <span class="sparkle s2">⭐</span>
+              <span class="sparkle s3">⚡</span>
+            </div>
+          </div>
+
+          <h1 class="main-title">
+            <span class="title-sub">GRADE 5 ADVENTURE</span>
+            Computer Lab Safety Hero
+          </h1>
+          <p class="hero-tagline">Can you master physical safety, smart browsing & the <strong>Stop-Block-Tell</strong> rule?</p>
+
+          <div class="menu-stats-card">
+            <div class="mstat">
+              <span class="mstat-icon">⭐</span>
+              <span class="mstat-num" id="menu-high-score">0</span>
+              <span class="mstat-lbl">High Score</span>
+            </div>
+            <div class="mstat">
+              <span class="mstat-icon">🎖️</span>
+              <span class="mstat-num" id="menu-stars-earned">0 / 15</span>
+              <span class="mstat-lbl">Safety Stars</span>
+            </div>
+            <div class="mstat">
+              <span class="mstat-icon">🏅</span>
+              <span class="mstat-num" id="menu-rank">Novice Cadet</span>
+              <span class="mstat-lbl">Rank</span>
+            </div>
+          </div>
+
+          <div class="menu-actions">
+            <button id="btn-start-game" class="btn-hero pulse-glow">
+              <span class="btn-hero-icon">▶</span>
+              <span>START ADVENTURE</span>
+            </button>
+            <div class="menu-btn-row">
+              <button id="btn-level-select" class="btn-secondary">🗺️ Levels</button>
+              <button id="btn-how-to-play" class="btn-secondary">📖 How to Play</button>
+              <button id="btn-safety-rules" class="btn-secondary">📋 Safety Rules</button>
+            </div>
+          </div>
+
+          <div class="menu-decor-lab">
+            <div class="lab-item-decor">🖥️</div>
+            <div class="lab-item-decor">🎒</div>
+            <div class="lab-item-decor">🔌</div>
+            <div class="lab-item-decor">🧃</div>
+            <div class="lab-item-decor">🛑</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: LEVEL SELECT -->
+      <section id="screen-level-select" class="screen">
+        <div class="modal-card level-select-card">
+          <div class="card-header">
+            <h2>🗺️ Choose Your Safety Mission</h2>
+            <p>Complete each level to earn stars and unlock the Final Challenge!</p>
+          </div>
+          <div class="levels-grid">
+            <div class="level-card" data-level="1">
+              <div class="level-card-top">
+                <span class="level-num-pill">Level 1</span>
+                <span class="level-stars" id="lvl1-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-card-icon">🧃⚡</div>
+              <h3>Physical Lab Safety</h3>
+              <p>Keep liquids, food, bags, and cables safe in the lab room!</p>
+              <button class="btn-level-play" onclick="game.startLevel(1)">Play Level 1</button>
+            </div>
+
+            <div class="level-card" data-level="2">
+              <div class="level-card-top">
+                <span class="level-num-pill">Level 2</span>
+                <span class="level-stars" id="lvl2-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-card-icon">👍👎</div>
+              <h3>Good vs Bad Habits</h3>
+              <p>Sort and categorize daily computer laboratory behaviors!</p>
+              <button class="btn-level-play" onclick="game.startLevel(2)">Play Level 2</button>
+            </div>
+
+            <div class="level-card" data-level="3">
+              <div class="level-card-top">
+                <span class="level-num-pill">Level 3</span>
+                <span class="level-stars" id="lvl3-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-card-icon">🌐🛡️</div>
+              <h3>Safe Internet Explorer</h3>
+              <p>Search safely, detect tricks & close dangerous popups!</p>
+              <button class="btn-level-play" onclick="game.startLevel(3)">Play Level 3</button>
+            </div>
+
+            <div class="level-card" data-level="4">
+              <div class="level-card-top">
+                <span class="level-num-pill">Level 4</span>
+                <span class="level-stars" id="lvl4-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-card-icon">🚦🛑👩‍🏫</div>
+              <h3>Stop – Block – Tell</h3>
+              <p>Master the gold rule when encountering online strangers!</p>
+              <button class="btn-level-play" onclick="game.startLevel(4)">Play Level 4</button>
+            </div>
+
+            <div class="level-card boss-card" data-level="5">
+              <div class="level-card-top">
+                <span class="level-num-pill special">FINAL BOSS</span>
+                <span class="level-stars" id="lvl5-stars">⭐⭐⭐</span>
+              </div>
+              <div class="level-card-icon">👑🛡️</div>
+              <h3>Safety Hero Gauntlet</h3>
+              <p>The ultimate mixed speed test to earn your Golden Badge!</p>
+              <button class="btn-level-play" onclick="game.startLevel(5)">Play Challenge</button>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn-secondary" onclick="game.showScreen('screen-main-menu')">⬅ Back to Menu</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: HOW TO PLAY MODAL -->
+      <section id="screen-how-to-play" class="screen">
+        <div class="modal-card">
+          <div class="card-header">
+            <h2>📖 How to Play & Be a Safety Hero</h2>
+            <p>Simple controls designed for fun and interactive learning!</p>
+          </div>
+          <div class="how-to-grid">
+            <div class="ht-item">
+              <div class="ht-icon">🖱️</div>
+              <h4>Interact & Choose</h4>
+              <p>Look at what the student character is doing in the lab. Click the safe action or helper button!</p>
+            </div>
+            <div class="ht-item">
+              <div class="ht-icon">📦</div>
+              <h4>Drag & Sort</h4>
+              <p>In Level 2, categorize actions into <strong>✅ Good Habit</strong> or <strong>❌ Bad Habit</strong> zones.</p>
+            </div>
+            <div class="ht-item">
+              <div class="ht-icon">🔍</div>
+              <h4>Inspect Web Links</h4>
+              <p>In Level 3, check website URLs and dismiss tricky popups safely before they harm your device.</p>
+            </div>
+            <div class="ht-item">
+              <div class="ht-icon">🚦</div>
+              <h4>Stop – Block – Tell</h4>
+              <p>In Level 4, hit the buttons in exact order: <strong>1. STOP</strong> → <strong>2. BLOCK</strong> → <strong>3. TELL</strong>!</p>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn-hero" onclick="game.showScreen('screen-main-menu')">Got it! Let's Play! 🚀</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: SAFETY RULES REFERENCE -->
+      <section id="screen-safety-rules" class="screen">
+        <div class="modal-card">
+          <div class="card-header">
+            <h2>📋 Computer Lab Golden Rules</h2>
+            <p>Remember these 6 key safety principles every time you use technology:</p>
+          </div>
+          <div class="rules-list-grid">
+            <div class="rule-card">
+              <span class="rc-num">1</span>
+              <div class="rc-body">
+                <strong>🚫 No Drinks or Food near PCs</strong>
+                <p>Spills cause electrical shorts, damage keyboards, and create shock hazards.</p>
+              </div>
+            </div>
+            <div class="rule-card">
+              <span class="rc-num">2</span>
+              <div class="rc-body">
+                <strong>🔌 Never Pull Cables by Force</strong>
+                <p>Ask Teacher Maya or a lab supervisor if a cord is tangled or stuck.</p>
+              </div>
+            </div>
+            <div class="rule-card">
+              <span class="rc-num">3</span>
+              <div class="rc-body">
+                <strong>🎒 Store Bags in Racks / Walkways Clear</strong>
+                <p>Keep lab floors clear so students don't trip while walking.</p>
+              </div>
+            </div>
+            <div class="rule-card">
+              <span class="rc-num">4</span>
+              <div class="rc-body">
+                <strong>🧘 Be Gentle with Hardware</strong>
+                <p>Never hit monitors or smash keys when a computer freezes. Stay calm and ask for help.</p>
+              </div>
+            </div>
+            <div class="rule-card">
+              <span class="rc-num">5</span>
+              <div class="rc-body">
+                <strong>🔒 Never Share Passwords or Address</strong>
+                <p>Keep your personal info private. Real websites will never ask for your home address randomly.</p>
+              </div>
+            </div>
+            <div class="rule-card">
+              <span class="rc-num">6</span>
+              <div class="rc-body">
+                <strong>🛑 Stop – Block – Tell Rule</strong>
+                <p>If an online stranger makes you uncomfortable: Stop talking, Block them, and Tell a trusted adult.</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn-hero" onclick="game.showScreen('screen-main-menu')">Back to Menu 🏠</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: LEVEL 1 (PHYSICAL LAB SAFETY) -->
+      <section id="screen-level-1" class="screen">
+        <div class="game-stage">
+          <div class="stage-header">
+            <span class="stage-pill">Level 1: Lab Room Safety</span>
+            <h2 id="l1-title" class="stage-title">Water Bottle Alert!</h2>
+          </div>
+
+          <!-- Interactive Visual Lab Room Scene -->
+          <div class="lab-visual-stage" id="l1-stage">
+            <!-- Lab Background Elements -->
+            <div class="lab-wall">
+              <div class="whiteboard">📋 Lab Safety Rules: Clean • Careful • Respectful</div>
+              <div class="lab-clock">🕒 <span id="lab-clock-time">10:15 AM</span></div>
+              <div class="lab-window">
+                <div class="sun">☀️</div>
+                <div class="tree">🌳</div>
+              </div>
+            </div>
+
+            <div class="lab-floor">
+              <!-- Outside safe table area / Cubby rack -->
+              <div class="safe-storage-area" id="l1-safe-zone">
+                <span class="storage-sign" id="l1-storage-sign">🚪 Hallway Drink Table</span>
+                <div class="storage-rack" id="l1-storage-rack"></div>
+              </div>
+
+              <!-- Computer Desk Workspace -->
+              <div class="computer-desk-station" id="l1-desk-station">
+                <div class="desk-top">
+                  <div class="monitor-unit" id="l1-monitor">
+                    <div class="screen-glass" id="l1-screen-glass">
+                      <span class="screen-content" id="l1-screen-content">🖥️ System Active</span>
+                    </div>
+                    <div class="monitor-stand"></div>
+                  </div>
+                  <div class="keyboard-unit" id="l1-keyboard">⌨️</div>
+                  <div class="mouse-unit">🖱️</div>
+                  <div class="hazard-object-slot" id="l1-hazard-slot">
+                    <!-- Hazard item appears here (e.g. water bottle, lunch box) -->
+                  </div>
+                </div>
+                <div class="desk-legs">
+                  <div class="pc-tower" id="l1-pc-tower">
+                    <span class="tower-led">💡</span>
+                    <span class="tower-icon">⚙️</span>
+                  </div>
+                  <div class="cable-tangle" id="l1-cable-tangle">
+                    <div class="cable-wire" id="l1-wire"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Student Character -->
+              <div class="character-actor" id="l1-student-actor">
+                <div class="actor-bubble" id="l1-student-bubble">"Hmm, what should I do?"</div>
+                <div class="actor-avatar" id="l1-student-avatar">👦</div>
+                <div class="actor-held-item" id="l1-student-item">💧</div>
+                <div class="actor-name">Leo (Grade 5)</div>
+              </div>
+
+              <!-- Teacher / Helper Character -->
+              <div class="character-helper hidden" id="l1-teacher-helper">
+                <div class="actor-bubble teacher-b" id="l1-teacher-bubble">"I am here to help!"</div>
+                <div class="actor-avatar">👩‍🏫</div>
+                <div class="actor-name">Teacher Maya</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Action Decision Bar -->
+          <div class="action-decision-panel">
+            <div class="decision-prompt" id="l1-prompt-text">Leo is carrying a water bottle into the computer room. What should he do?</div>
+            <div class="decision-choices" id="l1-choices-container">
+              <!-- Dynamically populated choices -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: LEVEL 2 (GOOD HABITS VS BAD HABITS) -->
+      <section id="screen-level-2" class="screen">
+        <div class="game-stage">
+          <div class="stage-header">
+            <span class="stage-pill">Level 2: Good Habits vs Bad Habits</span>
+            <h2 class="stage-title">Inspect the Lab Behavior!</h2>
+          </div>
+
+          <div class="habits-stage-wrapper">
+            <!-- Current Situation Graphic Card -->
+            <div class="habit-scene-card" id="l2-scene-card">
+              <div class="scene-badge" id="l2-scene-badge">Scenario 1 of 8</div>
+              <div class="scene-visual-art" id="l2-scene-art">
+                <div class="scene-emoji-large" id="l2-scene-emoji">🪑</div>
+                <div class="scene-animation-decor" id="l2-scene-decor"></div>
+              </div>
+              <h3 class="scene-title" id="l2-scene-title">Sitting upright with feet on the floor</h3>
+              <p class="scene-desc" id="l2-scene-desc">Student adjusts chair height and sits properly without slouching or swinging.</p>
+            </div>
+
+            <!-- Two Big Interaction Targets -->
+            <div class="habits-target-zones">
+              <button class="habit-zone good-zone" id="btn-habit-good" onclick="game.handleHabitChoice(true)">
+                <div class="zone-icon">✅</div>
+                <div class="zone-info">
+                  <span class="zone-title">GOOD HABIT</span>
+                  <span class="zone-sub">Safe & Responsible Lab Behavior</span>
+                </div>
+                <div class="zone-key-hint">Click Here</div>
+              </button>
+
+              <button class="habit-zone bad-zone" id="btn-habit-bad" onclick="game.handleHabitChoice(false)">
+                <div class="zone-icon">❌</div>
+                <div class="zone-info">
+                  <span class="zone-title">BAD HABIT</span>
+                  <span class="zone-sub">Unsafe or Risky Behavior</span>
+                </div>
+                <div class="zone-key-hint">Click Here</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: LEVEL 3 (SAFE INTERNET EXPLORER) -->
+      <section id="screen-level-3" class="screen">
+        <div class="game-stage">
+          <div class="stage-header">
+            <span class="stage-pill">Level 3: Safe Web Explorer</span>
+            <h2 id="l3-header-title" class="stage-title">Search Safely & Avoid Web Tricks!</h2>
+          </div>
+
+          <!-- Child-Friendly Simulated Browser -->
+          <div class="browser-frame" id="l3-browser-frame">
+            <!-- Browser Chrome / Top Bar -->
+            <div class="browser-toolbar">
+              <div class="browser-dots">
+                <span class="bdot red"></span>
+                <span class="bdot yellow"></span>
+                <span class="bdot green"></span>
+              </div>
+              <div class="browser-tabs">
+                <div class="btab active">
+                  <span class="btab-icon">🌐</span>
+                  <span class="btab-title" id="l3-tab-title">SafeSearch Junior - Animals</span>
+                  <span class="btab-close">×</span>
+                </div>
+                <div class="btab btab-add">+</div>
+              </div>
+            </div>
+
+            <div class="browser-nav-bar">
+              <div class="nav-controls">
+                <button class="nav-btn" disabled>◀</button>
+                <button class="nav-btn" disabled>▶</button>
+                <button class="nav-btn">🔄</button>
+              </div>
+              <div class="address-bar">
+                <span class="security-badge" id="l3-sec-badge">🔒 https://</span>
+                <input type="text" id="l3-url-input" value="www.safekidssearch.org/animals" readonly>
+                <span class="addr-star">⭐</span>
+              </div>
+            </div>
+
+            <!-- Browser Viewport (Web Page / Popups) -->
+            <div class="browser-viewport" id="l3-viewport">
+
+              <!-- VIEW A: Search Engine Results (Scenario 1) -->
+              <div id="l3-search-view" class="webpage-content">
+                <div class="search-engine-header">
+                  <div class="search-logo">🔍 Safe<strong>Kids</strong> Search</div>
+                  <div class="search-box-display">
+                    <span class="sb-text">Animals of the World</span>
+                    <span class="sb-icon">🔎</span>
+                  </div>
+                </div>
+
+                <div class="search-instruction-pill">
+                  💡 <strong>Your Mission:</strong> Inspect the web links below. Click the <strong>trustworthy, safe</strong> educational website!
+                </div>
+
+                <div class="search-results-list" id="l3-search-results">
+                  <!-- Generated dynamically in JS -->
+                </div>
+              </div>
+
+              <!-- VIEW B: Suspicious Popups (Scenarios 2 - 6) -->
+              <div id="l3-popup-view" class="webpage-content hidden">
+                <div class="simulated-article-bg">
+                  <h3>🦁 Amazing Animal Facts for School Project</h3>
+                  <p>Lions live in groups called prides. Elephants communicate using deep low sounds that travel miles through the ground...</p>
+                  <div class="fake-article-img">🐘 🦒 🦓 🐅</div>
+                </div>
+
+                <!-- Overlay Suspicious Popup Window -->
+                <div class="popup-modal-layer" id="l3-popup-modal">
+                  <div class="popup-dialog-box" id="l3-popup-box">
+                    <div class="popup-topbar" id="l3-popup-topbar">
+                      <span class="popup-dot"></span>
+                      <span id="l3-popup-bar-title">⚠️ Special Alert!</span>
+                      <button class="popup-x-btn" onclick="game.handlePopupAction('close')">✖</button>
+                    </div>
+                    <div class="popup-body">
+                      <div class="popup-icon-huge" id="l3-popup-icon">🎁</div>
+                      <h3 class="popup-heading" id="l3-popup-title">CONGRATULATIONS!</h3>
+                      <p class="popup-message" id="l3-popup-msg">You won a FREE Gaming Tablet! Click below to claim instantly!</p>
+                      <div class="popup-action-buttons" id="l3-popup-btns">
+                        <!-- Populated by JS -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: LEVEL 4 (STOP – BLOCK – TELL) -->
+      <section id="screen-level-4" class="screen">
+        <div class="game-stage">
+          <div class="stage-header">
+            <span class="stage-pill">Level 4: Digital Citizenship</span>
+            <h2 class="stage-title">Master the Rule: STOP 🛑 • BLOCK 🚫 • TELL 👩‍🏫</h2>
+          </div>
+
+          <div class="sbt-stage-wrapper">
+            <!-- Simulated Safe Kids Chat App -->
+            <div class="chat-app-mock">
+              <div class="chat-topbar">
+                <div class="chat-avatar" id="l4-chat-avatar">👤</div>
+                <div class="chat-user-info">
+                  <span class="chat-user-name" id="l4-sender-name">Unknown_User_99</span>
+                  <span class="chat-user-status" id="l4-sender-status">⚠️ Not in your trusted school contacts</span>
+                </div>
+                <div class="chat-badge">School Messenger</div>
+              </div>
+
+              <div class="chat-messages-area" id="l4-chat-area">
+                <div class="chat-bubble incoming" id="l4-chat-msg">
+                  <span class="sender-tag" id="l4-sender-tag">Unknown:</span>
+                  <p id="l4-msg-text">"Hey kid! Tell me your home address and school name right now for a free prize."</p>
+                  <span class="chat-time">Just now</span>
+                </div>
+                <!-- Animated status overlay upon actions -->
+                <div class="chat-status-banner hidden" id="l4-chat-status">
+                  <!-- E.g. "Step 1: Conversation Stopped! Next: Block user" -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Stop-Block-Tell Action Control Station -->
+            <div class="sbt-controls-card">
+              <div class="sbt-stepper">
+                <div class="sbt-step-node active" id="sbt-node-1">
+                  <span class="snode-num">1</span>
+                  <span class="snode-lbl">STOP</span>
+                </div>
+                <div class="sbt-step-line" id="sbt-line-1"></div>
+                <div class="sbt-step-node" id="sbt-node-2">
+                  <span class="snode-num">2</span>
+                  <span class="snode-lbl">BLOCK</span>
+                </div>
+                <div class="sbt-step-line" id="sbt-line-2"></div>
+                <div class="sbt-step-node" id="sbt-node-3">
+                  <span class="snode-num">3</span>
+                  <span class="snode-lbl">TELL</span>
+                </div>
+              </div>
+
+              <div class="sbt-current-instruction" id="l4-instruction-text">
+                An unknown stranger is asking for private personal info. Click <strong>Step 1: STOP</strong>!
+              </div>
+
+              <div class="sbt-buttons-grid">
+                <button class="btn-sbt btn-stop" id="btn-sbt-stop" onclick="game.handleSBTAction('STOP')">
+                  <span class="sbt-btn-icon">🛑</span>
+                  <div class="sbt-btn-text">
+                    <strong>1. STOP</strong>
+                    <span>Do NOT reply or give info</span>
+                  </div>
+                </button>
+
+                <button class="btn-sbt btn-block disabled" id="btn-sbt-block" onclick="game.handleSBTAction('BLOCK')">
+                  <span class="sbt-btn-icon">🚫</span>
+                  <div class="sbt-btn-text">
+                    <strong>2. BLOCK</strong>
+                    <span>Stop them from messaging</span>
+                  </div>
+                </button>
+
+                <button class="btn-sbt btn-tell disabled" id="btn-sbt-tell" onclick="game.handleSBTAction('TELL')">
+                  <span class="sbt-btn-icon">👩‍🏫</span>
+                  <div class="sbt-btn-text">
+                    <strong>3. TELL</strong>
+                    <span>Report to teacher or parent</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: LEVEL COMPLETE OVERLAY -->
+      <section id="screen-level-complete" class="screen">
+        <div class="modal-card victory-card">
+          <div class="victory-header">
+            <div class="trophy-bounce">🏆</div>
+            <h2 id="complete-lvl-title">🎉 LEVEL 1 COMPLETE!</h2>
+            <p id="complete-lvl-sub">Fantastic job! You know how to keep the computer lab safe.</p>
+          </div>
+
+          <div class="victory-stars" id="complete-stars-container">
+            <span class="vstar vstar-1">⭐</span>
+            <span class="vstar vstar-2">⭐</span>
+            <span class="vstar vstar-3">⭐</span>
+          </div>
+
+          <div class="victory-stats-row">
+            <div class="vstat-box">
+              <span class="vs-lbl">Level Score</span>
+              <span class="vs-val" id="complete-score-val">+250</span>
+            </div>
+            <div class="vstat-box">
+              <span class="vs-lbl">Accuracy</span>
+              <span class="vs-val" id="complete-acc-val">100%</span>
+            </div>
+            <div class="vstat-box">
+              <span class="vs-lbl">Safety Rating</span>
+              <span class="vs-val" id="complete-rating-val">Master</span>
+            </div>
+          </div>
+
+          <div class="victory-advice-box" id="complete-advice-box">
+            💡 <strong>Safety Takeaway:</strong> Always keep liquids and food out of the lab, and ask your teacher before touching stuck cables!
+          </div>
+
+          <div class="modal-foot">
+            <button class="btn-hero" id="btn-next-level" onclick="game.proceedNextLevel()">
+              <span>Continue to Next Level ➡</span>
+            </button>
+            <button class="btn-secondary" onclick="game.showScreen('screen-level-select')">🗺️ Level Select</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: FINAL GAME RESULT / CERTIFICATE -->
+      <section id="screen-game-result" class="screen">
+        <div class="modal-card certificate-card">
+          <div class="cert-border">
+            <div class="cert-badge">🏅 OFFICIAL SAFETY HERO CERTIFICATE 🏅</div>
+            <h2 class="cert-title">Computer Lab Safety Champion</h2>
+            <p class="cert-subtitle">This certificate is awarded to our Grade 5 Tech Cadet:</p>
+            <div class="cert-recipient" id="cert-recipient-name">SAFETY HERO</div>
+
+            <div class="cert-score-grid">
+              <div class="cstat">
+                <span class="cstat-icon">⭐</span>
+                <span class="cstat-num" id="cert-total-score">850</span>
+                <span class="cstat-lbl">Final Score</span>
+              </div>
+              <div class="cstat">
+                <span class="cstat-icon">✨</span>
+                <span class="cstat-num" id="cert-total-stars">15 / 15</span>
+                <span class="cstat-lbl">Stars Collected</span>
+              </div>
+              <div class="cstat">
+                <span class="cstat-icon">🎯</span>
+                <span class="cstat-num" id="cert-accuracy">96%</span>
+                <span class="cstat-lbl">Decision Accuracy</span>
+              </div>
+              <div class="cstat">
+                <span class="cstat-icon">🥇</span>
+                <span class="cstat-num" id="cert-rank-name">GRAND MASTER</span>
+                <span class="cstat-lbl">Hero Rank</span>
+              </div>
+            </div>
+
+            <div class="cert-quote">
+              "Equipped with the knowledge to protect lab equipment, practice smart web exploration, and always apply <strong>Stop – Block – Tell</strong>."
+            </div>
+
+            <div class="cert-signatures">
+              <div class="sig-box">
+                <span class="sig-line">👩‍🏫 Teacher Maya</span>
+                <span class="sig-role">Lab Supervisor</span>
+              </div>
+              <div class="sig-stamp">🛡️ VERIFIED SAFE</div>
+              <div class="sig-box">
+                <span class="sig-line">🤖 Sparky</span>
+                <span class="sig-role">Tech Bot Guide</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-foot">
+            <button class="btn-hero" onclick="game.startLevel(1)">🔄 Play Again</button>
+            <button class="btn-secondary" onclick="game.showScreen('screen-main-menu')">🏠 Main Menu</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: GAME OVER / TRY AGAIN -->
+      <section id="screen-game-over" class="screen">
+        <div class="modal-card game-over-card">
+          <div class="go-icon">🤔</div>
+          <h2>Oops! Let's Review & Try Again!</h2>
+          <p>You ran out of lives on this level, but every mistake is a chance to learn safety!</p>
+          <div class="go-tip-box" id="go-tip-box">
+            💡 <strong>Quick Safety Reminder:</strong> When in doubt, ask a teacher or adult for help, and never share private details online.
+          </div>
+          <div class="modal-foot">
+            <button class="btn-hero" id="btn-retry-level" onclick="game.retryCurrentLevel()">🔄 Try Level Again</button>
+            <button class="btn-secondary" onclick="game.showScreen('screen-main-menu')">🏠 Main Menu</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Feedback Modal / Interactive Animation Overlay -->
+    <div id="feedback-overlay" class="feedback-overlay hidden">
+      <div class="feedback-modal-box" id="feedback-modal-box">
+        <div class="fb-icon" id="fb-icon">🌟</div>
+        <h3 class="fb-title" id="fb-title">Great Choice!</h3>
+        <p class="fb-desc" id="fb-desc">Water can damage computer parts and create electric hazards.</p>
+        <div class="fb-points" id="fb-points">+50 Points!</div>
+        <button class="btn-hero fb-btn" id="fb-btn-next" onclick="game.dismissFeedback()">Continue ➡</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
